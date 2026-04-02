@@ -1,0 +1,140 @@
+# 🏋️ Workout Site PRD
+
+## 📌 Product Overview
+
+A simple workout tracking web app where users can:
+
+* View workouts by day (Monday, Tuesday, Wednesday)
+* See a list of exercises
+* Click an exercise to view an **image illustration + details**
+
+---
+
+## 🎯 Goals
+
+* Make workouts easy to follow
+* Provide visual guidance for each exercise
+* Keep UI clean and fast
+
+---
+
+## 👤 Target Users
+
+* Beginners in the gym
+* People following a weekly routine
+* Users who want visual guidance for exercises
+
+---
+
+## 🧩 Features
+
+### 1. Workout Schedule View
+
+* Display days:
+
+  * Monday (Chest & Arms)
+  * Tuesday (Back & Shoulders)
+  * Wednesday (Legs)
+
+* Each day shows exercises list
+
+Example:
+Monday:
+
+* Chest bench press
+* DB incline press
+* Sit stretch (left/right)
+* Stand press down
+* Arm raise (left/right)
+* Biceps press
+
+---
+
+### 2. Exercise Detail View
+
+When user clicks an exercise:
+
+* Show:
+
+  * Exercise name
+  * Image illustration (GIF or PNG)
+  * Short description
+  * Optional: reps/sets
+
+---
+
+### 3. Image Illustration
+
+Each exercise must have:
+
+* A clear image or GIF
+* Stored locally or fetched from API
+
+---
+
+### 4. Navigation
+
+* Click day → see exercises
+* Click exercise → open detail modal/page
+
+---
+
+## 🧠 User Flow
+
+1. User lands on homepage
+2. Sees workout days
+3. Clicks "Monday"
+4. Sees exercise list
+5. Clicks "Bench Press"
+6. Sees image + instructions
+
+---
+
+## 🎨 UI Requirements
+
+* Clean layout (cards or list)
+* Mobile-friendly
+* Fast loading
+* Minimal distractions
+
+---
+
+## 🛠 Tech Requirements
+
+* Frontend: Nuxt 3 (Vue 3 + TypeScript)
+* State: Pinia or simple composables
+* Styling: Tailwind CSS
+* Image source:
+
+  * Local assets OR
+  * API (future upgrade)
+
+---
+
+## 📦 Data Structure Example
+
+```ts
+type Exercise = {
+  id: string;
+  name: string;
+  image: string;
+  description?: string;
+};
+
+type WorkoutDay = {
+  day: string;
+  exercises: Exercise[];
+};
+```
+
+---
+
+## 🚀 Future Features
+
+* Track completed exercises
+* Timer for sets
+* Video demos instead of images
+* User accounts
+* Progress tracking
+
+---
