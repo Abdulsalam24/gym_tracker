@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <!-- Main content: stacked on mobile, side-by-side on md+ -->
+    <!-- Main content -->
     <div class="flex flex-col md:flex-row flex-1">
 
       <!-- Exercise list -->
@@ -61,7 +61,6 @@
 
       <!-- Detail panel -->
       <div class="flex-1 overflow-y-auto min-h-[320px] md:min-h-0">
-        <!-- Empty state -->
         <div v-if="activeEx === null" class="h-full flex items-center justify-center min-h-[320px]">
           <div class="text-[11px] tracking-widest text-[#2a2a2a] uppercase">Select an exercise</div>
         </div>
@@ -75,52 +74,49 @@
               <div class="text-[12px] text-[#555]">{{ selected.muscle }}</div>
             </div>
 
-            <!-- Photos / Motion tabs -->
+            <!-- Photos / Motion / Video tabs -->
             <div>
               <div class="flex gap-1 mb-3">
                 <button
-                  class="text-[10px] tracking-widest uppercase px-3 py-1.5 rounded transition-colors"
-                  :class="mediaTab === 'photos' ? 'bg-accent text-black font-bold' : 'text-[#555] hover:text-[#888]'"
-                  @click="switchTab('photos')"
-                >Photos</button>
-                <button
-                  class="text-[10px] tracking-widest uppercase px-3 py-1.5 rounded transition-colors"
-                  :class="mediaTab === 'motion' ? 'bg-accent text-black font-bold' : 'text-[#555] hover:text-[#888]'"
-                  @click="switchTab('motion')"
-                >Motion</button>
+                  v-for="tab in (['photos', 'motion', 'video'] as const)"
+                  :key="tab"
+                  class="text-[10px] tracking-widest uppercase px-3 py-1.5 rounded transition-colors capitalize"
+                  :class="mediaTab === tab ? 'bg-accent text-black font-bold' : 'text-[#555] hover:text-[#888]'"
+                  @click="mediaTab = tab"
+                >{{ tab }}</button>
               </div>
 
-              <div class="bg-[#0f0f0f] border border-[#1e1e1e] rounded-md overflow-hidden min-h-[160px] flex items-center justify-center">
-                <template v-if="imageLoading">
-                  <div class="text-[11px] tracking-widest text-[#333] uppercase py-10">Loading...</div>
+              <div class="bg-[#0f0f0f] border border-[#1e1e1e] rounded-md overflow-hidden">
+                <template v-if="loading">
+                  <div class="flex items-center justify-center min-h-[160px]">
+                    <div class="text-[11px] tracking-widest text-[#333] uppercase">Loading...</div>
+                  </div>
                 </template>
-                <template v-else-if="images">
+                <template v-else-if="exData">
 
                   <!-- Photos: start + end side by side -->
                   <div v-if="mediaTab === 'photos'" class="grid grid-cols-2 w-full">
                     <div class="relative">
-                      <img :src="images.start" :alt="selected.name + ' start'" class="w-full object-cover aspect-square" />
+                      <img :src="exData.start" :alt="selected.name + ' start'" class="w-full object-cover aspect-square" />
                       <div class="absolute bottom-1.5 left-2 text-[9px] tracking-widest text-white/50 uppercase">Start</div>
                     </div>
                     <div class="relative border-l border-[#1e1e1e]">
-                      <img :src="images.end" :alt="selected.name + ' end'" class="w-full object-cover aspect-square" />
+                      <img :src="exData.end" :alt="selected.name + ' end'" class="w-full object-cover aspect-square" />
                       <div class="absolute bottom-1.5 left-2 text-[9px] tracking-widest text-white/50 uppercase">End</div>
                     </div>
                   </div>
 
-                  <!-- Motion: crossfade between start and end -->
-                  <div v-else class="relative w-full aspect-square max-w-sm mx-auto">
+                  <!-- Motion: 4-step crossfade pendulum -->
+                  <div v-else-if="mediaTab === 'motion'" class="relative w-full aspect-square max-w-sm mx-auto">
                     <img
-                      :src="images.start"
+                      :src="exData.start"
                       :alt="selected.name"
-                      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-                      :class="motionFrame === 0 ? 'opacity-100' : 'opacity-0'"
+                      class="fx-start absolute inset-0 w-full h-full object-cover"
                     />
                     <img
-                      :src="images.end"
+                      :src="exData.end"
                       :alt="selected.name"
-                      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-                      :class="motionFrame === 1 ? 'opacity-100' : 'opacity-0'"
+                      class="fx-end absolute inset-0 w-full h-full object-cover"
                     />
                     <div class="absolute bottom-2 right-2 flex items-center gap-1.5">
                       <div class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
@@ -128,9 +124,22 @@
                     </div>
                   </div>
 
+                  <!-- Video: short YouTube demo -->
+                  <div v-else class="aspect-video w-full">
+                    <iframe
+                      :key="exData.videoId"
+                      :src="`https://www.youtube-nocookie.com/embed/${exData.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&loop=1&playlist=${exData.videoId}&end=30`"
+                      class="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowfullscreen
+                    />
+                  </div>
+
                 </template>
                 <template v-else>
-                  <div class="text-[11px] tracking-widest text-[#2a2a2a] uppercase py-10">No image available</div>
+                  <div class="flex items-center justify-center min-h-[160px]">
+                    <div class="text-[11px] tracking-widest text-[#2a2a2a] uppercase">No data available</div>
+                  </div>
                 </template>
               </div>
             </div>
@@ -185,67 +194,46 @@
 <script setup lang="ts">
 import { workouts } from '~/data/workouts'
 
-const activeDay = ref(0)
-const activeEx = ref<number | null>(null)
-const mediaTab = ref<'photos' | 'motion'>('photos')
-const motionFrame = ref(0)
-const images = ref<{ start: string; end: string } | null>(null)
-const imageLoading = ref(false)
+type ExData = { start: string; end: string; videoId: string }
+type MediaTab = 'photos' | 'motion' | 'video'
 
-let motionTimer: ReturnType<typeof setInterval> | null = null
+const activeDay = ref(0)
+const activeEx = ref<number | null>(0)
+const mediaTab = ref<MediaTab>('photos')
+const exData = ref<ExData | null>(null)
+const loading = ref(false)
 
 const currentDay = computed(() => workouts[activeDay.value])
 const selected = computed(() => activeEx.value !== null ? currentDay.value.exercises[activeEx.value] : null)
 
 watch(selected, async (ex) => {
-  images.value = null
-  stopMotion()
+  exData.value = null
+  mediaTab.value = 'photos'
   if (!ex) return
-  imageLoading.value = true
+  loading.value = true
   try {
-    const data = await $fetch<{ images: { start: string; end: string } | null }>(`/api/exercise-image?name=${encodeURIComponent(ex.name)}`)
-    images.value = data.images
+    const res = await $fetch<{ data: ExData | null }>(`/api/exercise-image?name=${encodeURIComponent(ex.name)}`)
+    exData.value = res.data
   } finally {
-    imageLoading.value = false
+    loading.value = false
   }
-})
-
-function switchTab(tab: 'photos' | 'motion') {
-  mediaTab.value = tab
-  if (tab === 'motion') startMotion()
-  else stopMotion()
-}
-
-function startMotion() {
-  stopMotion()
-  motionFrame.value = 0
-  motionTimer = setInterval(() => {
-    motionFrame.value = motionFrame.value === 0 ? 1 : 0
-  }, 900)
-}
-
-function stopMotion() {
-  if (motionTimer) { clearInterval(motionTimer); motionTimer = null }
-}
+}, { immediate: true })
 
 function selectDay(i: number) {
   activeDay.value = i
-  activeEx.value = null
+  activeEx.value = 0
   mediaTab.value = 'photos'
-  stopMotion()
 }
 
 function selectEx(i: number) {
   activeEx.value = activeEx.value === i ? null : i
   mediaTab.value = 'photos'
-  stopMotion()
 }
 
 function prevEx() {
   if (activeEx.value !== null && activeEx.value > 0) {
     activeEx.value--
     mediaTab.value = 'photos'
-    stopMotion()
   }
 }
 
@@ -253,9 +241,22 @@ function nextEx() {
   if (activeEx.value !== null && activeEx.value < currentDay.value.exercises.length - 1) {
     activeEx.value++
     mediaTab.value = 'photos'
-    stopMotion()
   }
 }
-
-onUnmounted(() => stopMotion())
 </script>
+
+<style scoped>
+/* Hold start → ease to end → hold end → ease back */
+@keyframes fx-start {
+  0%, 20%  { opacity: 1; }
+  45%, 55% { opacity: 0; }
+  80%, 100% { opacity: 1; }
+}
+@keyframes fx-end {
+  0%, 20%  { opacity: 0; }
+  45%, 55% { opacity: 1; }
+  80%, 100% { opacity: 0; }
+}
+.fx-start { animation: fx-start 5s ease-in-out infinite; }
+.fx-end   { animation: fx-end   5s ease-in-out infinite; }
+</style>
