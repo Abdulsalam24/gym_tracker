@@ -108,4 +108,58 @@ export const workouts: WorkoutDay[] = [
       },
     ],
   },
+  {
+    day: 'FRI',
+    theme: 'SHOULDERS',
+    exercises: [
+      {
+        name: 'Incline Bench Press',
+        muscle: 'Upper Chest · Front Delt · Triceps',
+        cues: ['30–45° incline only', 'Bar touches upper chest', 'Drive through your feet'],
+        prog: { Sets: '3 × 12–15', RPE: '7', Rest: '60 sec', Progress: 'Reps first' },
+      },
+      {
+        name: 'Rear Delt Fly',
+        muscle: 'Rear Delt · Upper Back',
+        cues: ['Hinge 45° forward', 'Elbows wide', 'Squeeze hard at the top'],
+        prog: { Sets: '3 × 15', RPE: '7', Rest: '60 sec', Progress: 'Reps first' },
+      },
+      {
+        name: 'Cable Flyers Down',
+        muscle: 'Lower Chest · Front Delt',
+        cues: ['Stand centered between cables set high', 'Slight bend in elbows', 'Bring hands down and together at hip level'],
+        prog: { Sets: '3 × 12–15', RPE: '7', Rest: '60 sec', Progress: 'Reps first' },
+      },
+      {
+        name: 'Cable Flyers Middle',
+        muscle: 'Mid Chest · Front Delt',
+        cues: ['Stand centered, cables at chest height', 'Slight bend in elbows throughout', 'Squeeze hard when hands meet in front'],
+        prog: { Sets: '3 × 12–15', RPE: '7', Rest: '60 sec', Progress: 'Reps first' },
+      },
+      {
+        name: 'DB Shoulder Press',
+        muscle: 'Anterior Delt · Lateral Delt · Triceps',
+        cues: ['Start at ear level', 'Press straight up, don\'t flare', 'Control the descent'],
+        prog: { Sets: '4 × 8–10', RPE: '7–8', Rest: '90 sec', Progress: '+2.5 kg' },
+      },
+      {
+        name: 'DB Incline Rows',
+        muscle: 'Upper Back · Rear Delt · Biceps',
+        cues: ['Chest flat on incline bench', 'Pull elbows back and up', 'Full stretch at the bottom'],
+        prog: { Sets: '3 × 10–12', RPE: '7', Rest: '90 sec', Progress: '+2.5 kg' },
+      },
+      {
+        name: 'Bent Over Tricep Dips',
+        muscle: 'Triceps (all heads)',
+        cues: ['Hinge forward 45°', 'Upper arms parallel to floor', 'Full extension at the back'],
+        prog: { Sets: '3 × 12–15', RPE: '7', Rest: '60 sec', Progress: 'Reps first' },
+      },
+      {
+        name: 'Incline Sit Back Pull',
+        muscle: 'Lats · Rear Delt · Rhomboids',
+        cues: ['Sit facing incline bench, chest against pad', 'Pull cable handles to lower chest', 'Squeeze shoulder blades at the end'],
+        prog: { Sets: '3 × 10–12', RPE: '7', Rest: '90 sec', Progress: '+2.5 kg' },
+      },
+    ],
+  },
 ]

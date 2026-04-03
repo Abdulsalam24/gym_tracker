@@ -15,6 +15,13 @@ const EXERCISE_DATA: Record<string, { start: string; end: string; videoId: strin
   'Barbell Back Squat':  { start: `${BASE}/Barbell_Squat/0.jpg`,                     end: `${BASE}/Barbell_Squat/1.jpg`,                     videoId: '1kIqv3qY1vY' },
   'Leg Extension':       { start: `${BASE}/Leg_Extensions/0.jpg`,                    end: `${BASE}/Leg_Extensions/1.jpg`,                    videoId: 'RlL2GYKqiEQ' },
   'Romanian Deadlift':   { start: `${BASE}/Romanian_Deadlift/0.jpg`,                 end: `${BASE}/Romanian_Deadlift/1.jpg`,                 videoId: 'ypY8WmNTUco' },
+  'Incline Bench Press': { start: `${BASE}/Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg`, end: `${BASE}/Barbell_Incline_Bench_Press_-_Medium_Grip/1.jpg`, videoId: 'DutO2wEtqaw' },
+  'Cable Flyers Down':   { start: `${BASE}/Low_Cable_Crossover/0.jpg`,               end: `${BASE}/Low_Cable_Crossover/1.jpg`,               videoId: 'bptdQtH7IQA' },
+  'Cable Flyers Middle': { start: `${BASE}/Cable_Crossover/0.jpg`,                   end: `${BASE}/Cable_Crossover/1.jpg`,                   videoId: 'Vo7vqb8mink' },
+  'DB Shoulder Press':   { start: `${BASE}/Dumbbell_Shoulder_Press/0.jpg`,           end: `${BASE}/Dumbbell_Shoulder_Press/1.jpg`,           videoId: '3rd1lF6gyFI' },
+  'DB Incline Rows':     { start: `${BASE}/Dumbbell_Incline_Row/0.jpg`,              end: `${BASE}/Dumbbell_Incline_Row/1.jpg`,              videoId: 'Du5oIfDeayg' },
+  'Bent Over Tricep Dips': { start: `${BASE}/Bent_Over_Two-Dumbbell_Row/0.jpg`,      end: `${BASE}/Bent_Over_Two-Dumbbell_Row/1.jpg`,        videoId: 'jP6_dkEAfj0' },
+  'Incline Sit Back Pull': { start: `${BASE}/Bent_Over_Two-Dumbbell_Row/0.jpg`,      end: `${BASE}/Bent_Over_Two-Dumbbell_Row/1.jpg`,        videoId: '_5I3fTjiAYs' },
 }
 
 export default defineEventHandler((event) => {
