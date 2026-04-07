@@ -6,7 +6,6 @@ const EXERCISE_DATA: Record<string, { start: string; end: string; videoId: strin
   'DB Incline Press':    { start: `${BASE}/Incline_Dumbbell_Press/0.jpg`,             end: `${BASE}/Incline_Dumbbell_Press/1.jpg`,             videoId: 'IP4oeKh1Sd4' },
   'Tricep Pushdown':     { start: `${BASE}/Cable_Incline_Pushdown/0.jpg`,             end: `${BASE}/Cable_Incline_Pushdown/1.jpg`,             videoId: 'rcIAT7jOOKw' },
   'Lateral Raise':       { start: `${BASE}/Side_Lateral_Raise/0.jpg`,                end: `${BASE}/Side_Lateral_Raise/1.jpg`,                videoId: 'PzsMitRdI_8' },
-  'Barbell Curl':        { start: `${BASE}/Barbell_Curl/0.jpg`,                       end: `${BASE}/Barbell_Curl/1.jpg`,                       videoId: 'ul9yQRaX8Og' },
   'Pull Up':             { start: `${BASE}/Pullups/0.jpg`,                            end: `${BASE}/Pullups/1.jpg`,                            videoId: 'xpFvPf032Bg' },
   'Cable Row':           { start: `${BASE}/Seated_Cable_Rows/0.jpg`,                 end: `${BASE}/Seated_Cable_Rows/1.jpg`,                 videoId: 'dTkhHp_kX_c' },
   'DB Front Raise':      { start: `${BASE}/Front_Raise_And_Pullover/0.jpg`,           end: `${BASE}/Front_Raise_And_Pullover/1.jpg`,           videoId: 'M4wvk5o-cN0' },
@@ -22,6 +21,13 @@ const EXERCISE_DATA: Record<string, { start: string; end: string; videoId: strin
   'DB Incline Rows':     { start: `${BASE}/Dumbbell_Incline_Row/0.jpg`,              end: `${BASE}/Dumbbell_Incline_Row/1.jpg`,              videoId: 'Du5oIfDeayg' },
   'Bent Over Tricep Dips': { start: `${BASE}/Bent_Over_Two-Dumbbell_Row/0.jpg`,      end: `${BASE}/Bent_Over_Two-Dumbbell_Row/1.jpg`,        videoId: 'jP6_dkEAfj0' },
   'Incline Sit Back Pull': { start: `${BASE}/Bent_Over_Two-Dumbbell_Row/0.jpg`,      end: `${BASE}/Bent_Over_Two-Dumbbell_Row/1.jpg`,        videoId: '_5I3fTjiAYs' },
+  'Overhead Cable Extension': { start: `${BASE}/Triceps_Overhead_Extension_with_Rope/0.jpg`, end: `${BASE}/Triceps_Overhead_Extension_with_Rope/1.jpg`, videoId: 'kiG-1dMGXhY' },
+  'Lat Pull Down':       { start: `${BASE}/Wide-Grip_Lat_Pulldown/0.jpg`,            end: `${BASE}/Wide-Grip_Lat_Pulldown/1.jpg`,            videoId: 'SALxEARiMkw' },
+  'Barbell Row':         { start: `${BASE}/Bent_Over_Barbell_Row/0.jpg`,             end: `${BASE}/Bent_Over_Barbell_Row/1.jpg`,             videoId: 'vT2GjY_Umpw' },
+  'Hammer Curl':         { start: `${BASE}/Hammer_Curls/0.jpg`,                      end: `${BASE}/Hammer_Curls/1.jpg`,                      videoId: 'zC3nLlEvin4' },
+  'Leg Press':           { start: `${BASE}/Leg_Press/0.jpg`,                         end: `${BASE}/Leg_Press/1.jpg`,                         videoId: 'IZxyjW7MPJQ' },
+  'Calves Press':        { start: `${BASE}/Calf_Press_On_The_Leg_Press_Machine/0.jpg`, end: `${BASE}/Calf_Press_On_The_Leg_Press_Machine/1.jpg`, videoId: 'yUeAXOp_oLQ' },
+  'Preacher Curl':       { start: `${BASE}/Preacher_Curl/0.jpg`,                     end: `${BASE}/Preacher_Curl/1.jpg`,                     videoId: 'fIWP-FRFNU0' },
 }
 
 export default defineEventHandler((event) => {
