@@ -1,377 +1,252 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-[#0a0a0a] text-white font-sans">
-    <!-- Header -->
-    <div class="px-4 md:px-6 pt-5 md:pt-6">
-      <div class="flex items-start justify-between mb-4 md:mb-5">
+  <div class="min-h-screen bg-[#0b0b0f] text-white font-sans">
+    <div class="max-w-lg mx-auto px-4 py-6 pb-20">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
         <div>
-          <div class="text-[11px] tracking-widest text-[#666] uppercase mb-0.5">
-            Weekly Training
-          </div>
-          <div
-            class="text-xl md:text-[28px] font-bold text-accent leading-none"
-          >
-            PAIN!
-          </div>
+          <div class="text-[13px] text-[#666] mb-0.5">{{ todayLabel }}</div>
+          <div class="text-[22px] font-bold leading-tight">Don't stop!</div>
         </div>
-        <div
-          class="text-[9px] md:text-[10px] tracking-widest text-[#666] border border-[#2a2a2a] px-2 md:px-2.5 py-1.5 mt-1 max-w-[120px] md:max-w-none truncate"
-        >
-          {{ todayLabel }}
+        <div class="h-10 px-3 rounded-full bg-[#12121a] border border-[#1f1f2e] flex items-center gap-2 shrink-0">
+          <div class="w-2 h-2 rounded-full bg-accent animate-pulse" />
+          <div class="text-[11px] tracking-wide text-[#666] font-medium uppercase">{{ currentDay.day }}</div>
         </div>
       </div>
 
-      <!-- Day tabs -->
-      <div class="flex border-b border-[#1a1a1a]">
-        <div
+      <!-- Day pills -->
+      <div class="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
+        <button
           v-for="(w, i) in workouts"
           :key="w.day"
-          class="flex-1 min-w-0 px-2 md:px-4 py-2.5 md:py-3 cursor-pointer border-b-2 transition-all duration-150"
-          :class="activeDay === i ? 'border-accent' : 'border-transparent'"
+          class="px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide transition-all duration-200 shrink-0"
+          :class="activeDay === i
+            ? 'bg-accent text-black'
+            : 'bg-[#16161d] text-[#555] hover:text-[#888]'"
           @click="selectDay(i)"
         >
-          <div
-            class="text-[13px] font-bold tracking-wide"
-            :class="activeDay === i ? 'text-accent' : 'text-[#444]'"
-          >
-            {{ w.day }}
-          </div>
-          <div
-            class="text-[9px] tracking-wide uppercase mt-0.5 truncate"
-            :class="activeDay === i ? 'text-[#666]' : 'text-[#333]'"
-          >
-            {{ w.theme }}
+          {{ w.day }}
+        </button>
+      </div>
+
+      <!-- Workout summary card -->
+      <div class="bg-gradient-to-br from-[#1a1a2e] to-[#16161d] rounded-2xl p-5 mb-6 border border-[#1f1f2e]">
+        <div class="text-[17px] font-bold mb-1">{{ currentDay.theme }}</div>
+        <div class="flex items-center gap-4 text-[12px] text-[#666]">
+          <div class="flex items-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+            {{ currentDay.exercises.length }} exercises
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Main content -->
-    <div class="flex flex-col md:flex-row flex-1">
-      <!-- Exercise list -->
-      <div
-        class="md:w-[280px] lg:w-[300px] md:shrink-0 md:border-r border-b md:border-b-0 border-[#1a1a1a]"
-      >
-        <div
-          class="text-[10px] tracking-widest text-[#444] px-4 pt-3 pb-2 uppercase"
-        >
-          Exercises — Click to view
-        </div>
+      <!-- Exercise list (always visible) -->
+      <div class="text-[11px] tracking-widest text-[#444] uppercase mb-3">Exercises</div>
+      <div class="flex flex-col gap-2.5 mb-6">
         <div
           v-for="(ex, i) in currentDay.exercises"
           :key="ex.name"
-          class="flex items-center gap-3 px-4 py-3 border-l-[3px] border-b border-[#111] cursor-pointer transition-all duration-100"
-          :class="
-            activeEx === i
-              ? 'bg-[#111] border-l-accent'
-              : 'border-l-transparent hover:bg-[#111]'
-          "
+          class="flex items-center gap-3.5 rounded-xl p-3.5 cursor-pointer transition-colors border"
+          :class="activeEx === i
+            ? 'bg-[#18182a] border-accent/20'
+            : 'bg-[#12121a] border-transparent hover:bg-[#18182a] hover:border-[#1f1f2e]'"
           @click="selectEx(i)"
         >
-          <div
-            class="text-[12px] font-bold min-w-[20px]"
-            :class="activeEx === i ? 'text-accent' : 'text-[#2a2a2a]'"
-          >
-            {{ String(i + 1).padStart(2, "0") }}
+          <div class="w-12 h-12 rounded-lg bg-[#1a1a2e] flex items-center justify-center shrink-0 overflow-hidden">
+            <img
+              v-if="exerciseImages[ex.name]"
+              :src="exerciseImages[ex.name]"
+              :alt="ex.name"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="text-[16px] text-accent/40 font-bold">{{ String(i + 1).padStart(2, '0') }}</div>
           </div>
           <div class="flex-1 min-w-0">
             <div
-              class="text-[13px] font-medium leading-snug truncate"
-              :class="activeEx === i ? 'text-white' : 'text-[#aaa]'"
-            >
-              {{ ex.name }}
-            </div>
-            <div class="text-[11px] text-[#3a3a3a] mt-0.5 truncate">
-              {{ ex.muscle }}
-            </div>
+              class="text-[13px] font-semibold leading-snug truncate"
+              :class="activeEx === i ? 'text-accent' : ''"
+            >{{ ex.name }}</div>
+            <div class="text-[11px] text-[#555] mt-0.5">{{ ex.prog.Sets }}</div>
           </div>
-          <div
-            class="text-[13px] shrink-0"
-            :class="activeEx === i ? 'text-accent' : 'text-[#2a2a2a]'"
-          >
-            →
+          <div class="text-[10px] text-[#444] bg-[#1a1a2e] px-2.5 py-1 rounded-full shrink-0 truncate max-w-[90px]">
+            {{ ex.muscle.split('·')[0].trim() }}
           </div>
         </div>
       </div>
 
-      <!-- Detail panel -->
-      <div class="flex-1 overflow-y-auto min-h-[320px] md:min-h-0">
-        <div
-          v-if="activeEx === null"
-          class="h-full flex items-center justify-center min-h-[320px]"
-        >
-          <div class="text-[11px] tracking-widest text-[#2a2a2a] uppercase">
-            Select an exercise
-          </div>
-        </div>
-
-        <template v-else-if="selected">
-          <div class="p-4 md:p-5 flex flex-col gap-4">
-            <!-- Title -->
-            <div>
-              <div class="text-lg md:text-[19px] font-bold text-accent mb-0.5">
-                {{ selected.name }}
-              </div>
-              <div class="text-[12px] text-[#555]">{{ selected.muscle }}</div>
-            </div>
-
-            <!-- Photos / Motion / Video tabs -->
-            <div>
-              <div
-                class="flex mb-3 bg-[#111] border border-[#1e1e1e] rounded-md p-0.5"
-              >
-                <button
-                  v-for="tab in (['motion', 'photos', 'video'] as MediaTab[])"
-                  :key="tab"
-                  class="flex-1 text-[10px] tracking-widest uppercase py-1.5 rounded transition-all duration-150 font-medium"
-                  :class="
-                    mediaTab === tab
-                      ? 'bg-accent text-black'
-                      : 'text-[#444] hover:text-[#777]'
-                  "
-                  @click="mediaTab = tab"
-                >
-                  {{ tab }}
-                </button>
-              </div>
-
-              <div
-                class="bg-[#0f0f0f] border border-[#1e1e1e] rounded-md overflow-hidden"
-              >
-                <template v-if="loading">
-                  <div class="flex items-center justify-center min-h-[160px]">
-                    <div
-                      class="text-[11px] tracking-widest text-[#333] uppercase"
-                    >
-                      Loading...
-                    </div>
-                  </div>
-                </template>
-                <template v-else-if="exData">
-                  <!-- Photos: start + end side by side -->
-                  <div
-                    v-if="mediaTab === 'photos'"
-                    class="grid grid-cols-2 w-full"
-                  >
-                    <div class="relative">
-                      <img
-                        :src="exData.start"
-                        :alt="selected.name + ' start'"
-                        class="w-full object-cover aspect-square"
-                      />
-                      <div
-                        class="absolute bottom-1.5 left-2 text-[9px] tracking-widest text-white/50 uppercase"
-                      >
-                        Start
-                      </div>
-                    </div>
-                    <div class="relative border-l border-[#1e1e1e]">
-                      <img
-                        :src="exData.end"
-                        :alt="selected.name + ' end'"
-                        class="w-full object-cover aspect-square"
-                      />
-                      <div
-                        class="absolute bottom-1.5 left-2 text-[9px] tracking-widest text-white/50 uppercase"
-                      >
-                        End
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Motion: 4-step crossfade pendulum -->
-                  <div
-                    v-else-if="mediaTab === 'motion'"
-                    class="relative w-full aspect-square max-w-sm mx-auto"
-                  >
-                    <img
-                      :src="exData.start"
-                      :alt="selected.name"
-                      class="fx-start absolute inset-0 w-full h-full object-cover"
-                    />
-                    <img
-                      :src="exData.end"
-                      :alt="selected.name"
-                      class="fx-end absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div
-                      class="absolute bottom-2 right-2 flex items-center gap-1.5"
-                    >
-                      <div
-                        class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"
-                      />
-                      <span
-                        class="text-[9px] tracking-widest text-white/40 uppercase"
-                        >Live</span
-                      >
-                    </div>
-                  </div>
-
-                  <!-- Video: short YouTube demo -->
-                  <div v-else class="aspect-video w-full">
-                    <iframe
-                      :key="exData.videoId"
-                      :src="`https://www.youtube-nocookie.com/embed/${exData.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&loop=1&playlist=${exData.videoId}&end=30`"
-                      class="w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen
-                    />
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="flex items-center justify-center min-h-[160px]">
-                    <div
-                      class="text-[11px] tracking-widest text-[#2a2a2a] uppercase"
-                    >
-                      No data available
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </div>
-
-            <!-- Coaching cues -->
-            <div>
-              <div
-                class="text-[10px] tracking-widest text-[#444] uppercase mb-2.5"
-              >
-                Coaching cues
-              </div>
-              <div
-                v-for="cue in selected.cues"
-                :key="cue"
-                class="flex gap-2.5 mb-1.5 items-start"
-              >
-                <div
-                  class="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-1.5"
-                />
-                <div class="text-[13px] text-[#999] leading-relaxed">
-                  {{ cue }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Progress grid -->
-            <div>
-              <div
-                class="text-[10px] tracking-widest text-[#444] uppercase mb-2.5"
-              >
-                Week 1 — Calibration
-              </div>
-              <div
-                class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-1.5"
-              >
-                <div
-                  v-for="(val, key) in selected.prog"
-                  :key="key"
-                  class="bg-[#111] px-3 py-2 rounded"
-                >
-                  <div
-                    class="text-[10px] text-[#444] tracking-wide uppercase mb-0.5"
-                  >
-                    {{ key }}
-                  </div>
-                  <div class="text-[12px] font-medium text-[#ccc]">
-                    {{ val }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Progress Tracker -->
-            <div>
-              <div class="text-[10px] tracking-widest text-[#444] uppercase mb-2.5">
-                Progress Tracker
-              </div>
-
-              <!-- Current weight -->
-              <div v-if="latestProgress" class="bg-[#111] border border-[#1e1e1e] rounded-md p-3 mb-3">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="text-[10px] text-[#444] tracking-wide uppercase mb-0.5">Current Weight</div>
-                    <div class="text-[18px] font-bold text-accent">{{ latestProgress.weight }}</div>
-                  </div>
-                  <div v-if="latestProgress.note" class="text-[11px] text-[#555] max-w-[140px] text-right">
-                    {{ latestProgress.note }}
-                  </div>
-                </div>
-                <div class="text-[10px] text-[#333] mt-1">{{ latestProgress.date }}</div>
-              </div>
-
-              <!-- Log new entry -->
-              <div class="flex flex-col sm:flex-row gap-2 mb-3">
-                <input
-                  v-model="newWeight"
-                  type="text"
-                  placeholder="Weight (e.g. 20kg)"
-                  class="flex-1 bg-[#111] border border-[#1e1e1e] rounded px-3 py-2.5 text-[12px] text-white placeholder-[#333] outline-none focus:border-accent transition-colors"
-                  @keydown.enter="logProgress"
-                />
-                <input
-                  v-model="newNote"
-                  type="text"
-                  placeholder="Note"
-                  class="flex-1 bg-[#111] border border-[#1e1e1e] rounded px-3 py-2.5 text-[12px] text-white placeholder-[#333] outline-none focus:border-accent transition-colors"
-                  @keydown.enter="logProgress"
-                />
-                <button
-                  class="bg-accent text-black text-[11px] font-bold tracking-wide uppercase px-3 py-2.5 rounded hover:opacity-80 transition-opacity shrink-0"
-                  @click="logProgress"
-                >
-                  Log
-                </button>
-              </div>
-
-              <!-- History -->
-              <div v-if="progressEntries.length > 0" class="space-y-1">
-                <div
-                  v-for="(entry, idx) in progressEntries.slice().reverse()"
-                  :key="idx"
-                  class="flex items-start sm:items-center justify-between bg-[#0d0d0d] border border-[#151515] rounded px-3 py-2 group"
-                >
-                  <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
-                    <div class="text-[11px] text-[#333] font-mono shrink-0">{{ entry.date }}</div>
-                    <div class="text-[13px] font-medium text-[#ccc] truncate">{{ entry.weight }}</div>
-                    <div v-if="entry.note" class="text-[11px] text-[#444] truncate">{{ entry.note }}</div>
-                  </div>
-                  <button
-                    class="text-[#333] sm:text-[#222] hover:text-red-500 text-[14px] sm:text-[11px] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0 ml-2 mt-0.5 sm:mt-0"
-                    @click="removeProgress(progressEntries.length - 1 - idx)"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-              <div v-else class="text-[11px] text-[#2a2a2a] tracking-wide">
-                No entries yet — log your first weight above
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer nav -->
-          <div
-            class="flex justify-between items-center px-4 py-2.5 border-t border-[#1a1a1a]"
-          >
+      <!-- Exercise detail (below the list) -->
+      <template v-if="selected">
+        <!-- Exercise nav header -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="text-[19px] font-bold">{{ selected.name }}</div>
+          <div class="flex gap-2">
             <button
-              class="text-[#333] text-base px-2.5 py-1 transition-colors hover:text-[#888] disabled:opacity-30"
+              class="w-8 h-8 rounded-lg bg-[#12121a] flex items-center justify-center text-[#555] hover:text-white transition-colors disabled:opacity-20"
               :disabled="activeEx === 0"
               @click="prevEx"
             >
-              ←
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            <div class="text-[10px] tracking-widest text-[#2a2a2a] uppercase">
-              {{ (activeEx ?? 0) + 1 }} /
-              {{ currentDay?.exercises.length ?? 0 }}
-            </div>
             <button
-              class="text-[#333] text-base px-2.5 py-1 transition-colors hover:text-[#888] disabled:opacity-30"
-              :disabled="activeEx === (currentDay?.exercises.length ?? 0) - 1"
+              class="w-8 h-8 rounded-lg bg-[#12121a] flex items-center justify-center text-[#555] hover:text-white transition-colors disabled:opacity-20"
+              :disabled="activeEx === currentDay.exercises.length - 1"
               @click="nextEx"
             >
-              →
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </div>
-        </template>
-      </div>
+        </div>
+        <div class="text-[12px] text-[#555] mb-4">{{ selected.muscle }}</div>
+
+        <!-- Media tabs -->
+        <div class="mb-4">
+          <div class="flex gap-1 mb-3 bg-[#12121a] rounded-xl p-1">
+            <button
+              v-for="tab in (['motion', 'photos', 'video'] as MediaTab[])"
+              :key="tab"
+              class="flex-1 text-[10px] tracking-widest uppercase py-2 rounded-lg transition-all duration-150 font-semibold"
+              :class="mediaTab === tab
+                ? 'bg-accent text-black'
+                : 'text-[#444] hover:text-[#777]'"
+              @click="mediaTab = tab"
+            >
+              {{ tab }}
+            </button>
+          </div>
+
+          <div class="bg-[#12121a] rounded-xl overflow-hidden border border-[#1a1a2e]">
+            <template v-if="loading">
+              <div class="flex items-center justify-center min-h-[200px]">
+                <div class="text-[11px] tracking-widest text-[#333] uppercase">Loading...</div>
+              </div>
+            </template>
+            <template v-else-if="exData">
+              <div v-if="mediaTab === 'photos'" class="grid grid-cols-2 w-full">
+                <div class="relative">
+                  <img :src="exData.start" :alt="selected.name + ' start'" class="w-full object-cover aspect-square" />
+                  <div class="absolute bottom-2 left-2.5 text-[9px] tracking-widest text-white/50 uppercase bg-black/40 px-1.5 py-0.5 rounded">Start</div>
+                </div>
+                <div class="relative border-l border-[#1a1a2e]">
+                  <img :src="exData.end" :alt="selected.name + ' end'" class="w-full object-cover aspect-square" />
+                  <div class="absolute bottom-2 left-2.5 text-[9px] tracking-widest text-white/50 uppercase bg-black/40 px-1.5 py-0.5 rounded">End</div>
+                </div>
+              </div>
+              <div v-else-if="mediaTab === 'motion'" class="relative w-full aspect-square">
+                <img :src="exData.start" :alt="selected.name" class="fx-start absolute inset-0 w-full h-full object-cover" />
+                <img :src="exData.end" :alt="selected.name" class="fx-end absolute inset-0 w-full h-full object-cover" />
+                <div class="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 bg-black/40 px-2 py-1 rounded-full">
+                  <div class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                  <span class="text-[9px] tracking-widest text-white/50 uppercase">Live</span>
+                </div>
+              </div>
+              <div v-else class="aspect-video w-full">
+                <iframe
+                  :key="exData.videoId"
+                  :src="`https://www.youtube-nocookie.com/embed/${exData.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&loop=1&playlist=${exData.videoId}&end=30`"
+                  class="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                />
+              </div>
+            </template>
+            <template v-else>
+              <div class="flex items-center justify-center min-h-[200px]">
+                <div class="text-[11px] tracking-widest text-[#2a2a2a] uppercase">No data available</div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Progress grid -->
+        <div class="grid grid-cols-4 gap-2 mb-4">
+          <div
+            v-for="(val, key) in selected.prog"
+            :key="key"
+            class="bg-[#12121a] rounded-xl p-3 text-center"
+          >
+            <div class="text-[9px] text-[#444] tracking-wide uppercase mb-1">{{ key }}</div>
+            <div class="text-[12px] font-semibold text-[#ccc]">{{ val }}</div>
+          </div>
+        </div>
+
+        <!-- Coaching cues -->
+        <div class="mb-4">
+          <div class="text-[11px] tracking-widest text-[#444] uppercase mb-2.5">Coaching Cues</div>
+          <div class="flex flex-col gap-2">
+            <div
+              v-for="cue in selected.cues"
+              :key="cue"
+              class="flex gap-2.5 items-start bg-[#12121a] rounded-lg px-3.5 py-2.5"
+            >
+              <div class="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-1.5" />
+              <div class="text-[12px] text-[#888] leading-relaxed">{{ cue }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div>
+          <div class="text-[11px] tracking-widest text-[#444] uppercase mb-2.5">Progress Tracker</div>
+
+          <div v-if="latestProgress" class="bg-gradient-to-br from-[#1a1a2e] to-[#12121a] rounded-xl p-4 mb-3 border border-[#1f1f2e]">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[10px] text-[#444] tracking-wide uppercase mb-0.5">Current Weight</div>
+                <div class="text-[20px] font-bold text-accent">{{ latestProgress.weight }}</div>
+              </div>
+              <div v-if="latestProgress.note" class="text-[11px] text-[#555] max-w-[140px] text-right">{{ latestProgress.note }}</div>
+            </div>
+            <div class="text-[10px] text-[#333] mt-1">{{ latestProgress.date }}</div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2 mb-3">
+            <div class="flex gap-2 flex-1 min-w-0">
+              <input
+                v-model="newWeight"
+                type="text"
+                placeholder="Weight (e.g. 20kg)"
+                class="flex-1 min-w-0 bg-[#12121a] border border-[#1a1a2e] rounded-xl px-3.5 py-2.5 text-[12px] text-white placeholder-[#333] outline-none focus:border-accent/50 transition-colors"
+                @keydown.enter="logProgress"
+              />
+              <input
+                v-model="newNote"
+                type="text"
+                placeholder="Note"
+                class="flex-1 min-w-0 bg-[#12121a] border border-[#1a1a2e] rounded-xl px-3.5 py-2.5 text-[12px] text-white placeholder-[#333] outline-none focus:border-accent/50 transition-colors"
+                @keydown.enter="logProgress"
+              />
+            </div>
+            <button
+              class="bg-accent text-black text-[11px] font-bold tracking-wide uppercase px-4 py-2.5 rounded-xl hover:opacity-80 transition-opacity shrink-0"
+              @click="logProgress"
+            >
+              Log
+            </button>
+          </div>
+
+          <div v-if="progressEntries.length > 0" class="flex flex-col gap-1.5">
+            <div
+              v-for="(entry, idx) in progressEntries.slice().reverse()"
+              :key="idx"
+              class="flex items-center justify-between bg-[#12121a] rounded-lg px-3.5 py-2.5 group"
+            >
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="text-[11px] text-[#333] font-mono shrink-0">{{ entry.date }}</div>
+                <div class="text-[13px] font-medium text-[#ccc] truncate">{{ entry.weight }}</div>
+                <div v-if="entry.note" class="text-[11px] text-[#444] truncate">{{ entry.note }}</div>
+              </div>
+              <button
+                class="text-[#222] hover:text-red-500 text-[11px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2"
+                @click="removeProgress(progressEntries.length - 1 - idx)"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+          <div v-else class="text-[11px] text-[#2a2a2a] tracking-wide">
+            No entries yet — log your first weight above
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -393,11 +268,17 @@ const activeEx = ref<number | null>(0);
 const mediaTab = ref<MediaTab>("motion");
 const exData = ref<ExData | null>(null);
 const loading = ref(false);
+const exerciseImages = ref<Record<string, string>>({});
 
 const currentDay = computed(() => workouts[activeDay.value]);
 const selected = computed(() =>
   activeEx.value !== null ? currentDay.value.exercises[activeEx.value] : null
 );
+
+const estimatedTime = computed(() => {
+  const count = currentDay.value.exercises.length;
+  return Math.round(count * 6.5);
+});
 
 const { getEntries, getLatest, addEntry, removeEntry, seedIfEmpty } = useProgress();
 
@@ -423,6 +304,20 @@ function removeProgress(index: number) {
   removeEntry(selected.value.name, index);
 }
 
+async function loadExerciseImages() {
+  currentDay.value.exercises.forEach(async (ex) => {
+    if (exerciseImages.value[ex.name]) return;
+    try {
+      const res = await $fetch<{ data: ExData | null }>(
+        `/api/exercise-image?name=${encodeURIComponent(ex.name)}`
+      );
+      if (res.data?.start) {
+        exerciseImages.value[ex.name] = res.data.start;
+      }
+    } catch {}
+  });
+}
+
 onMounted(() => {
   seedIfEmpty({
     'High-to-Low Cable Fly': { weight: '18.5kg' },
@@ -436,6 +331,7 @@ onMounted(() => {
     'Cable Row': { weight: '34kg' },
     'DB Front Raise': { weight: '25lbs / 11.3kg' },
   });
+  loadExerciseImages();
 });
 
 const dayMap: Record<number, string> = {
@@ -447,7 +343,11 @@ const dayMap: Record<number, string> = {
 const todayLabel = computed(() => {
   const abbr = dayMap[new Date().getDay()];
   const match = workouts.find((w) => w.day === abbr);
-  return match ? `TODAY · ${match.theme}` : "REST DAY";
+  return match ? `Today · ${match.theme}` : "Rest Day";
+});
+
+watch(activeDay, () => {
+  loadExerciseImages();
 });
 
 watch(
@@ -476,7 +376,7 @@ function selectDay(i: number) {
 }
 
 function selectEx(i: number) {
-  activeEx.value = activeEx.value === i ? null : i;
+  activeEx.value = i;
   mediaTab.value = "motion";
   newWeight.value = '';
   newNote.value = '';
@@ -501,39 +401,19 @@ function nextEx() {
 </script>
 
 <style scoped>
-/* Hold start → ease to end → hold end → ease back */
 @keyframes fx-start {
-  0%,
-  20% {
-    opacity: 1;
-  }
-  45%,
-  55% {
-    opacity: 0;
-  }
-  80%,
-  100% {
-    opacity: 1;
-  }
+  0%, 20% { opacity: 1; }
+  45%, 55% { opacity: 0; }
+  80%, 100% { opacity: 1; }
 }
 @keyframes fx-end {
-  0%,
-  20% {
-    opacity: 0;
-  }
-  45%,
-  55% {
-    opacity: 1;
-  }
-  80%,
-  100% {
-    opacity: 0;
-  }
+  0%, 20% { opacity: 0; }
+  45%, 55% { opacity: 1; }
+  80%, 100% { opacity: 0; }
 }
-.fx-start {
-  animation: fx-start 5s ease-in-out infinite;
-}
-.fx-end {
-  animation: fx-end 5s ease-in-out infinite;
-}
+.fx-start { animation: fx-start 5s ease-in-out infinite; }
+.fx-end { animation: fx-end 5s ease-in-out infinite; }
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
