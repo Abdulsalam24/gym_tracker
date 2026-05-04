@@ -9,7 +9,7 @@
         </div>
         <div class="h-10 px-3 rounded-full bg-[#12121a] border border-[#1f1f2e] flex items-center gap-2 shrink-0">
           <div class="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <div class="text-[11px] tracking-wide text-[#666] font-medium uppercase">{{ currentDay.day }}</div>
+          <div class="text-[11px] tracking-wide text-[#666] font-medium">{{ nigeriaTime }}</div>
         </div>
       </div>
 
@@ -18,24 +18,48 @@
         <button
           v-for="(w, i) in workouts"
           :key="w.day"
-          class="px-4 py-2 rounded-full text-[12px] font-semibold tracking-wide transition-all duration-200 shrink-0"
+          class="flex flex-col items-center px-4 py-2.5 rounded-2xl transition-all duration-200 shrink-0 min-w-[72px] border"
           :class="activeDay === i
-            ? 'bg-accent text-black'
-            : 'bg-[#16161d] text-[#555] hover:text-[#888]'"
+            ? 'bg-accent text-black border-accent'
+            : 'bg-[#16161d] border-[#1f1f2e] hover:border-[#333]'"
           @click="selectDay(i)"
         >
-          {{ w.day }}
+          <div
+            class="text-[12px] font-bold tracking-wide"
+            :class="activeDay === i ? 'text-black' : 'text-[#888]'"
+          >{{ w.day }}</div>
+          <div
+            class="text-[9px] tracking-wide mt-0.5"
+            :class="activeDay === i ? 'text-black/60' : 'text-[#444]'"
+          >{{ w.theme.split(' ')[0] }}</div>
+          <div
+            v-if="w.day === todayAbbr"
+            class="w-1 h-1 rounded-full mt-1"
+            :class="activeDay === i ? 'bg-black/40' : 'bg-accent'"
+          />
         </button>
       </div>
 
       <!-- Workout summary card -->
       <div class="bg-gradient-to-br from-[#1a1a2e] to-[#16161d] rounded-2xl p-5 mb-6 border border-[#1f1f2e]">
-        <div class="text-[17px] font-bold mb-1">{{ currentDay.theme }}</div>
-        <div class="flex items-center gap-4 text-[12px] text-[#666]">
-          <div class="flex items-center gap-1.5">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
-            {{ currentDay.exercises.length }} exercises
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[17px] font-bold mb-1">{{ currentDay.theme }}</div>
+            <div class="flex items-center gap-4 text-[12px] text-[#666]">
+              <div class="flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                {{ currentDay.exercises.length }} exercises
+              </div>
+            </div>
           </div>
+          <!-- <button
+            v-if="selected"
+            class="flex items-center gap-1.5 bg-accent/10 text-accent text-[11px] font-semibold tracking-wide px-3 py-2 rounded-xl hover:bg-accent/20 transition-colors shrink-0"
+            @click="scrollToDetail"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            View
+          </button> -->
         </div>
       </div>
 
@@ -74,6 +98,7 @@
       </div>
 
       <!-- Exercise detail (below the list) -->
+      <div ref="detailSection" />
       <template v-if="selected">
         <!-- Exercise nav header -->
         <div class="flex items-center justify-between mb-4">
@@ -248,6 +273,7 @@
         </div>
       </template>
     </div>
+
   </div>
 </template>
 
@@ -269,6 +295,31 @@ const mediaTab = ref<MediaTab>("motion");
 const exData = ref<ExData | null>(null);
 const loading = ref(false);
 const exerciseImages = ref<Record<string, string>>({});
+const detailSection = ref<HTMLElement | null>(null);
+
+function scrollToDetail() {
+  detailSection.value?.scrollIntoView({ behavior: 'smooth' });
+}
+
+const nigeriaTime = ref('');
+let clockInterval: ReturnType<typeof setInterval> | null = null;
+
+function updateClock() {
+  nigeriaTime.value = new Date().toLocaleTimeString('en-US', {
+    timeZone: 'Africa/Lagos',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).toLowerCase();
+}
+onMounted(() => {
+  updateClock();
+  clockInterval = setInterval(updateClock, 10000);
+});
+
+onUnmounted(() => {
+  if (clockInterval) clearInterval(clockInterval);
+});
 
 const currentDay = computed(() => workouts[activeDay.value]);
 const selected = computed(() =>
@@ -416,4 +467,5 @@ function nextEx() {
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 </style>
