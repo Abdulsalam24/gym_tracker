@@ -276,6 +276,75 @@
                 </div>
               </div>
             </div>
+
+            <!-- Progress Tracker -->
+            <div>
+              <div class="text-[10px] tracking-widest text-[#444] uppercase mb-2.5">
+                Progress Tracker
+              </div>
+
+              <!-- Current weight -->
+              <div v-if="latestProgress" class="bg-[#111] border border-[#1e1e1e] rounded-md p-3 mb-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-[10px] text-[#444] tracking-wide uppercase mb-0.5">Current Weight</div>
+                    <div class="text-[18px] font-bold text-accent">{{ latestProgress.weight }}</div>
+                  </div>
+                  <div v-if="latestProgress.note" class="text-[11px] text-[#555] max-w-[140px] text-right">
+                    {{ latestProgress.note }}
+                  </div>
+                </div>
+                <div class="text-[10px] text-[#333] mt-1">{{ latestProgress.date }}</div>
+              </div>
+
+              <!-- Log new entry -->
+              <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                <input
+                  v-model="newWeight"
+                  type="text"
+                  placeholder="Weight (e.g. 20kg)"
+                  class="flex-1 bg-[#111] border border-[#1e1e1e] rounded px-3 py-2.5 text-[12px] text-white placeholder-[#333] outline-none focus:border-accent transition-colors"
+                  @keydown.enter="logProgress"
+                />
+                <input
+                  v-model="newNote"
+                  type="text"
+                  placeholder="Note"
+                  class="flex-1 bg-[#111] border border-[#1e1e1e] rounded px-3 py-2.5 text-[12px] text-white placeholder-[#333] outline-none focus:border-accent transition-colors"
+                  @keydown.enter="logProgress"
+                />
+                <button
+                  class="bg-accent text-black text-[11px] font-bold tracking-wide uppercase px-3 py-2.5 rounded hover:opacity-80 transition-opacity shrink-0"
+                  @click="logProgress"
+                >
+                  Log
+                </button>
+              </div>
+
+              <!-- History -->
+              <div v-if="progressEntries.length > 0" class="space-y-1">
+                <div
+                  v-for="(entry, idx) in progressEntries.slice().reverse()"
+                  :key="idx"
+                  class="flex items-start sm:items-center justify-between bg-[#0d0d0d] border border-[#151515] rounded px-3 py-2 group"
+                >
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+                    <div class="text-[11px] text-[#333] font-mono shrink-0">{{ entry.date }}</div>
+                    <div class="text-[13px] font-medium text-[#ccc] truncate">{{ entry.weight }}</div>
+                    <div v-if="entry.note" class="text-[11px] text-[#444] truncate">{{ entry.note }}</div>
+                  </div>
+                  <button
+                    class="text-[#333] sm:text-[#222] hover:text-red-500 text-[14px] sm:text-[11px] sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0 ml-2 mt-0.5 sm:mt-0"
+                    @click="removeProgress(progressEntries.length - 1 - idx)"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+              <div v-else class="text-[11px] text-[#2a2a2a] tracking-wide">
+                No entries yet — log your first weight above
+              </div>
+            </div>
           </div>
 
           <!-- Footer nav -->
@@ -309,11 +378,17 @@
 
 <script setup lang="ts">
 import { workouts } from "~/data/workouts";
+import { useProgress } from "~/composables/useProgress";
 
 type ExData = { start: string; end: string; videoId: string };
 type MediaTab = "photos" | "motion" | "video";
 
-const activeDay = ref(0);
+const todayDayNum = new Date().getDay();
+const dayOrder = ['MON', 'TUE', 'WED', 'FRI'];
+const dayNumMap: Record<number, string> = { 1: 'MON', 2: 'TUE', 3: 'WED', 5: 'FRI' };
+const todayAbbr = dayNumMap[todayDayNum];
+const initialDay = todayAbbr ? dayOrder.indexOf(todayAbbr) : 0;
+const activeDay = ref(initialDay >= 0 ? initialDay : 0);
 const activeEx = ref<number | null>(0);
 const mediaTab = ref<MediaTab>("motion");
 const exData = ref<ExData | null>(null);
@@ -323,6 +398,45 @@ const currentDay = computed(() => workouts[activeDay.value]);
 const selected = computed(() =>
   activeEx.value !== null ? currentDay.value.exercises[activeEx.value] : null
 );
+
+const { getEntries, getLatest, addEntry, removeEntry, seedIfEmpty } = useProgress();
+
+const newWeight = ref('');
+const newNote = ref('');
+
+const progressEntries = computed(() =>
+  selected.value ? getEntries(selected.value.name) : []
+);
+const latestProgress = computed(() =>
+  selected.value ? getLatest(selected.value.name) : null
+);
+
+function logProgress() {
+  if (!selected.value || !newWeight.value.trim()) return;
+  addEntry(selected.value.name, newWeight.value.trim(), newNote.value.trim());
+  newWeight.value = '';
+  newNote.value = '';
+}
+
+function removeProgress(index: number) {
+  if (!selected.value) return;
+  removeEntry(selected.value.name, index);
+}
+
+onMounted(() => {
+  seedIfEmpty({
+    'High-to-Low Cable Fly': { weight: '18.5kg' },
+    'Cable Crossover': { weight: '18.5kg' },
+    'Incline Bench Press': { weight: '20kg each' },
+    'Barbell Bench Press': { weight: '20kg each', note: '+5 progress' },
+    'DB Incline Press': { weight: '20kg' },
+    'Tricep Pushdown': { weight: '31.5kg' },
+    'Lateral Raise': { weight: '10kg', note: 'progress 12kg' },
+    'Pull Up': { weight: '8 max reps' },
+    'Cable Row': { weight: '34kg' },
+    'DB Front Raise': { weight: '25lbs / 11.3kg' },
+  });
+});
 
 const dayMap: Record<number, string> = {
   1: "MON",
@@ -364,6 +478,8 @@ function selectDay(i: number) {
 function selectEx(i: number) {
   activeEx.value = activeEx.value === i ? null : i;
   mediaTab.value = "motion";
+  newWeight.value = '';
+  newNote.value = '';
 }
 
 function prevEx() {
